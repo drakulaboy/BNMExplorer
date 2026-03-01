@@ -57,3 +57,4 @@ Open your web browser and navigate to the following address:
 `http://<DEVICE_IP>:8080`
 
 **Example:** `http://192.168.1.101:8080`
+**(If you are doing it from VR just open `https://127.0.0.1:8080`)**
