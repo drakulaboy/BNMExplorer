@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 inline std::string GetExplorerHTML(int asmCount) {
     std::string html = R"HTML(<!DOCTYPE html>
 <html lang="en">
