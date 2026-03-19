@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 inline std::string GetExplorerHTML(int asmCount) {
     std::string html = R"HTML(<!DOCTYPE html>
 <html lang="en">
@@ -109,13 +110,15 @@ body{background:var(--bg);color:var(--fg);display:flex;flex-direction:column;hei
 .addr-badge:hover{background:#0b5c91;}
 .mth-row{display:flex;flex-direction:column;padding:12px;border-bottom:1px solid var(--brd);}
 #pnl-lua .lua-container{display:flex;flex:1;overflow:hidden;}
+
+/* Aici sunt modificarile pentru modul mobile */
 @media(max-width:800px){
 .workspace{flex-direction:column;overflow-y:auto;}
-.sidebar{width:100%;height:35vh;min-height:220px;flex-shrink:0;}
-.main-area{overflow:visible;flex-shrink:0;min-height:65vh;}
+.sidebar{width:100%;height:25vh;min-height:150px;flex-shrink:0;}
+.main-area{overflow:visible;flex-shrink:0;min-height:75vh;}
 .scene-mgr{flex-direction:column;}
-.hier{width:100%;height:35vh;min-height:220px;border-right:none;border-bottom:2px solid var(--brd);}
-.insp{min-height:45vh;}
+.hier{width:100%;height:20vh;min-height:140px;border-right:none;border-bottom:2px solid var(--brd);}
+.insp{min-height:65vh;flex:1;}
 #pnl-ctrl .hier{width:100%;height:auto;}
 .row{flex-direction:column;align-items:flex-start;padding:6px 0;}
 .lbl{width:100%;border-right:none;border-bottom:1px dashed #333;padding-bottom:4px;font-weight:bold;}
@@ -155,89 +158,134 @@ body{background:var(--bg);color:var(--fg);display:flex;flex-direction:column;hei
 <div class="tab" onclick="switchTab('lua')" id="tab-lua">Console</div>
 <div class="tab" onclick="switchTab('docs')" id="tab-docs">Docs</div>
 </div>
-<div class="panel active" id="pnl-scene">
-<div class="scene-mgr">
-<div class="hier">
-<div class="hier-hdr">
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<span>Hierarchy</span>
-<button class="btn" onclick="loadScene()"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button>
-</div>
-<input type="text" class="inp" id="sceneSearch" placeholder="Filter Hierarchy..." onkeyup="filterScene()">
-</div>
-<div class="tree-wrap" id="scene-tree"></div>
-</div>
-<div class="insp" id="scene-insp">
-<div style="padding:20px;text-align:center;color:#555;">Select a GameObject</div>
-</div>
-</div>
-</div>
-<div class="panel code-view" id="pnl-code"></div>
-<div class="panel" id="pnl-inst" style="padding:0">
-<div class="scene-mgr">
-<div class="hier" style="width:100%;border:none;">
-<div class="hier-hdr"><span>Instances</span></div>
-<div class="tree-wrap" id="inst-list" style="padding:10px;">Loading...</div>
-</div>
-</div>
-</div>
-<div class="panel" id="pnl-ctrl" style="padding:0">
-<div class="scene-mgr">
-<div class="hier">
-<div class="hier-hdr"><span>Target</span></div>
-<div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
-<div><label style="color:#aaa;display:block;margin-bottom:4px;">Address</label><input class="inp" id="ctrl-addr" value="0x0"></div>
-<div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="ctrl-static" onchange="document.getElementById('ctrl-addr').disabled=this.checked;if(this.checked)document.getElementById('ctrl-addr').value='0x0';"><label for="ctrl-static" style="color:#aaa;">Static (no instance)</label></div>
-<div><label style="color:#aaa;display:block;margin-bottom:4px;">Assembly</label><input class="inp" id="ctrl-asm"></div>
-<div><label style="color:#aaa;display:block;margin-bottom:4px;">Namespace</label><input class="inp" id="ctrl-ns"></div>
-<div><label style="color:#aaa;display:block;margin-bottom:4px;">Class</label><input class="inp" id="ctrl-cls"></div>
-<button class="btn btn-blu" style="justify-content:center;padding:10px;" onclick="loadController()">Fetch Target</button>
-</div>
-</div>
-<div class="insp" id="ctrl-insp"><div style="padding:20px;text-align:center;color:#555;">Configure target</div></div>
-</div>
-</div>
-<div class="panel" id="pnl-loops" style="padding:12px;flex-direction:column;gap:8px;">
-<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-<span style="font-weight:bold;font-size:14px;">Active Loops</span>
-<button class="btn btn-red" onclick="removeAllLoops()">Stop All</button>
-</div>
-<div id="loops-list" style="margin-top:6px;"></div>
-</div>
-<div class="panel" id="pnl-catcher" style="padding:0;flex-direction:column;">
-<div style="background:var(--bg4);padding:10px;border-bottom:1px solid var(--brd);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-<span style="font-weight:bold;">Method Catcher</span>
-<span style="opacity:.5;flex:1;min-width:150px;">Hook methods to record calls</span>
-<button class="btn btn-red" onclick="unhookAll()">Unhook All</button>
-</div>
-<div id="catcher-list" style="flex:1;overflow-y:auto;"></div>
-</div>
-<!-- TAB SCANNER -->
-<div class="panel" id="pnl-scanner" style="padding:16px;flex-direction:column;gap:12px;">
-    <div style="background:var(--bg3);padding:16px;border-radius:4px;border:1px solid var(--brd);display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-        <div style="flex:1;min-width:200px;">
-            <label style="color:#aaa;display:block;margin-bottom:6px;">Value to search</label>
-            <input type="text" class="inp" id="scan-val" placeholder="e.g. 9999">
-        </div>
-        <div>
-            <label style="color:#aaa;display:block;margin-bottom:6px;">Data Type</label>
-            <select class="inp" id="scan-type" style="width:120px;">
-                <option value="int32">Int32</option>
-                <option value="float">Float</option>
-                <option value="string">String</option>
-            </select>
-        </div>
-        <button class="btn btn-blu" style="height:36px;" onclick="runMemoryScan()">New Scan</button>
+
+<!-- TAB SCENE -->
+<div class="panel active" id="pnl-scene" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Scene Hierarchy & Inspector</div>
+        <div style="color:#aaa;font-size:11px;">Real-time view of the Unity Scene. Create, delete, and manage GameObjects dynamically. Edit Transform (Position, Rotation, Scale), view and modify public/private fields and properties. Add or remove components at runtime.</div>
     </div>
-    <div style="background:var(--bg);flex:1;border:1px solid var(--brd);border-radius:4px;overflow-y:auto;padding:12px;" id="scan-results">
-        <div style="color:#555;text-align:center;margin-top:20px;">Enter a value and click New Scan.</div>
+    <div class="scene-mgr">
+        <div class="hier">
+            <div class="hier-hdr">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span>Hierarchy</span>
+                    <button class="btn" onclick="loadScene()"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button>
+                </div>
+                <input type="text" class="inp" id="sceneSearch" placeholder="Filter Hierarchy..." onkeyup="filterScene()">
+            </div>
+            <div class="tree-wrap" id="scene-tree"></div>
+        </div>
+        <div class="insp" id="scene-insp">
+            <div style="padding:20px;text-align:center;color:#555;">Select a GameObject</div>
+        </div>
     </div>
 </div>
 
-<!-- TAB LUA (Modificat pentru File Manager) -->
+<!-- TAB INSPECTOR (Class Explorer) -->
+<div class="panel" id="pnl-code" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Class Explorer</div>
+        <div style="color:#aaa;font-size:11px;">Explore loaded assemblies, namespaces, and classes. View fields, properties, and method signatures directly from memory.</div>
+    </div>
+    <div class="code-view" id="code-content" style="flex:1;overflow:auto;"></div>
+</div>
+
+<!-- TAB INSTANCES -->
+<div class="panel" id="pnl-inst" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Instance Tracking</div>
+        <div style="color:#aaa;font-size:11px;">Find live instances of any class in memory. Open them directly in the Controller to read/write memory or invoke methods.</div>
+    </div>
+    <div class="scene-mgr">
+        <div class="hier" style="width:100%;border:none;">
+            <div class="hier-hdr"><span>Instances</span></div>
+            <div class="tree-wrap" id="inst-list" style="padding:10px;">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB CONTROLLER -->
+<div class="panel" id="pnl-ctrl" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Method Invoker & Memory Editor</div>
+        <div style="color:#aaa;font-size:11px;">Call static or instance methods directly from the browser with custom arguments. Read and write public/private fields and properties. Supports int, float, bool, string, Vector3, Color, and more.</div>
+    </div>
+    <div class="scene-mgr">
+        <div class="hier" style="width:240px;">
+            <div class="hier-hdr"><span>Target Configuration</span></div>
+            <div style="padding:10px;display:flex;flex-direction:column;gap:6px;">
+                <div><label style="color:#aaa;display:block;margin-bottom:2px;font-size:11px;">Address</label><input class="inp" id="ctrl-addr" value="0x0"></div>
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><input type="checkbox" id="ctrl-static" onchange="document.getElementById('ctrl-addr').disabled=this.checked;if(this.checked)document.getElementById('ctrl-addr').value='0x0';"><label for="ctrl-static" style="color:#aaa;font-size:11px;">Static (no instance)</label></div>
+                <div><label style="color:#aaa;display:block;margin-bottom:2px;font-size:11px;">Assembly</label><input class="inp" id="ctrl-asm"></div>
+                <div><label style="color:#aaa;display:block;margin-bottom:2px;font-size:11px;">Namespace</label><input class="inp" id="ctrl-ns"></div>
+                <div><label style="color:#aaa;display:block;margin-bottom:2px;font-size:11px;">Class</label><input class="inp" id="ctrl-cls"></div>
+                <button class="btn btn-blu" style="justify-content:center;padding:8px;margin-top:4px;" onclick="loadController()">Fetch Target</button>
+            </div>
+        </div>
+        <div class="insp" id="ctrl-insp"><div style="padding:20px;text-align:center;color:#555;">Configure target</div></div>
+    </div>
+</div>
+
+<!-- TAB LOOPS -->
+<div class="panel" id="pnl-loops" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Active Loops (Memory Freezer)</div>
+            <div style="color:#aaa;font-size:11px;">Automatically freeze/lock values in memory at a specified interval (e.g., God Mode, Infinite Ammo).</div>
+        </div>
+        <button class="btn btn-red" onclick="removeAllLoops()">Stop All</button>
+    </div>
+    <div id="loops-list" style="padding:12px;overflow-y:auto;flex:1;"></div>
+</div>
+
+<!-- TAB CATCHER -->
+<div class="panel" id="pnl-catcher" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
+        <div style="flex:1;min-width:200px;">
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Method Catcher</div>
+            <div style="color:#aaa;font-size:11px;">Hook methods to record calls, arguments, and return values in real-time.</div>
+        </div>
+        <button class="btn btn-red" onclick="unhookAll()">Unhook All</button>
+    </div>
+    <div id="catcher-list" style="flex:1;overflow-y:auto;"></div>
+</div>
+
+<!-- TAB SCANNER -->
+<div class="panel" id="pnl-scanner" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Memory Scanner</div>
+        <div style="color:#aaa;font-size:11px;">Search for specific values (int, float, string) in the game's memory, similar to GameGuardian.</div>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden;">
+        <div style="background:var(--bg3);padding:16px;border-radius:4px;border:1px solid var(--brd);display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;flex-shrink:0;">
+            <div style="flex:1;min-width:200px;">
+                <label style="color:#aaa;display:block;margin-bottom:6px;">Value to search</label>
+                <input type="text" class="inp" id="scan-val" placeholder="e.g. 9999">
+            </div>
+            <div>
+                <label style="color:#aaa;display:block;margin-bottom:6px;">Data Type</label>
+                <select class="inp" id="scan-type" style="width:120px;">
+                    <option value="int32">Int32</option>
+                    <option value="float">Float</option>
+                    <option value="string">String</option>
+                </select>
+            </div>
+            <button class="btn btn-blu" style="height:36px;" onclick="runMemoryScan()">New Scan</button>
+        </div>
+        <div style="background:var(--bg);flex:1;border:1px solid var(--brd);border-radius:4px;overflow-y:auto;padding:12px;" id="scan-results">
+            <div style="color:#555;text-align:center;margin-top:20px;">Enter a value and click New Scan.</div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB LUA CONSOLE -->
 <div class="panel" id="pnl-lua" style="padding:0;flex-direction:column;">
-    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <span style="font-weight:bold;">LuaBNM IDE</span>
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
+        <div style="flex:1;min-width:200px;">
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">LuaBNM IDE</div>
+            <div style="color:#aaa;font-size:11px;">Runtime Lua scripting for IL2CPP/Unity. Write, save, and execute scripts to manipulate the game dynamically.</div>
+        </div>
         <input type="text" class="inp" id="lua-filename" placeholder="script_name.lua" style="width:180px;padding:4px 8px;">
         <button class="btn btn-org" style="padding:4px 10px;" onclick="saveLuaScript()"><svg><use href="#ic-save"/></svg> Save</button>
         <div style="display:flex;gap:8px;margin-left:auto;">
@@ -258,12 +306,19 @@ body{background:var(--bg);color:var(--fg);display:flex;flex-direction:column;hei
         </div>
     </div>
 </div>
-<div class="panel" id="pnl-docs" style="padding:20px;flex-direction:column;overflow-y:auto;">
-<div style="max-width:700px;">
-<h2 style="color:var(--kw);margin-bottom:10px;">LuaBNM Documentation</h2>
-<div style="color:#aaa;margin-bottom:20px;">Runtime Lua scripting for IL2CPP/Unity via BNM</div>
-<h3 style="color:var(--type);margin:16px 0 8px;">Assembly &amp; Class Access</h3>
-<pre style="background:var(--bg);padding:12px;border:1px solid var(--brd);margin-bottom:12px;color:var(--fg);white-space:pre-wrap;">local asm = Assembly("Assembly-CSharp.dll")
+
+<!-- TAB DOCS -->
+<div class="panel" id="pnl-docs" style="padding:0;flex-direction:column;">
+    <div style="background:var(--bg4);padding:10px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">Documentation</div>
+        <div style="color:#aaa;font-size:11px;">API reference and examples for LuaBNM and system features.</div>
+    </div>
+    <div style="padding:20px;overflow-y:auto;flex:1;">
+        <div style="max-width:700px;">
+            <h2 style="color:var(--kw);margin-bottom:10px;">LuaBNM Documentation</h2>
+            <div style="color:#aaa;margin-bottom:20px;">Runtime Lua scripting for IL2CPP/Unity via BNM</div>
+            <h3 style="color:var(--type);margin:16px 0 8px;">Assembly &amp; Class Access</h3>
+            <pre style="background:var(--bg);padding:12px;border:1px solid var(--brd);margin-bottom:12px;color:var(--fg);white-space:pre-wrap;">local asm = Assembly("Assembly-CSharp.dll")
 local ns = asm:NameSpace("MyGame")
 local cls = ns:Class("PlayerController", 0x0)  -- 0x0 = static
 print(cls.get_Health())
@@ -271,39 +326,41 @@ cls.set_Health(100)
 local player = ns:Class("PlayerController", 0x7A3F00)
 print(player.Health)
 player.Speed = 10.5</pre>
-<h3 style="color:var(--type);margin:16px 0 8px;">Scene Access</h3>
-<pre style="background:var(--bg);padding:12px;border:1px solid var(--brd);margin-bottom:12px;color:var(--fg);white-space:pre-wrap;">local objs = scene.GetObjects()
+            <h3 style="color:var(--type);margin:16px 0 8px;">Scene Access</h3>
+            <pre style="background:var(--bg);padding:12px;border:1px solid var(--brd);margin-bottom:12px;color:var(--fg);white-space:pre-wrap;">local objs = scene.GetObjects()
 for i,v in ipairs(objs) do print(v.Name) end
 local go = scene.FindObject("Player")
 print(go.Name, go.active)
 local all = FindObjectsOfType("UnityEngine.Camera")</pre>
-<h3 style="color:var(--type);margin:16px 0 8px;">GetComponent</h3>
-<pre style="background:var(--bg);padding:12px;border:1px solid var(--brd);margin-bottom:12px;color:var(--fg);white-space:pre-wrap;">local go = scene.FindObject("Player")
+            <h3 style="color:var(--type);margin:16px 0 8px;">GetComponent</h3>
+            <pre style="background:var(--bg);padding:12px;border:1px solid var(--brd);margin-bottom:12px;color:var(--fg);white-space:pre-wrap;">local go = scene.FindObject("Player")
 local rb = go:GetComponent("Rigidbody")
 print(rb.velocity)
 local script = go:GetComponent("PlayerHealth")
 script.maxHealth = 200</pre>
-<h3 style="color:var(--type);margin:16px 0 8px;">API Reference</h3>
-<div style="overflow-x:auto;">
-<table class="table" style="width:100%;min-width:400px;">
-<tr><th>Function</th><th>Description</th></tr>
-<tr><td style="color:var(--mth);">Assembly(name)</td><td>Load assembly by name</td></tr>
-<tr><td style="color:var(--mth);">asm:NameSpace(ns)</td><td>Get namespace from assembly</td></tr>
-<tr><td style="color:var(--mth);">ns:Class(name, addr)</td><td>Get class. addr=0x0 for static</td></tr>
-<tr><td style="color:var(--mth);">asm:Class(name, addr)</td><td>Get class directly</td></tr>
-<tr><td style="color:var(--mth);">cls.fieldName</td><td>Read/Write field or property</td></tr>
-<tr><td style="color:var(--mth);">cls.method(args...)</td><td>Call method</td></tr>
-<tr><td style="color:var(--mth);">cls.addr</td><td>Get instance address</td></tr>
-<tr><td style="color:var(--mth);">scene.GetObjects()</td><td>Get GameObjects as table</td></tr>
-<tr><td style="color:var(--mth);">scene.FindObject(n)</td><td>Find GameObject by name</td></tr>
-<tr><td style="color:var(--mth);">FindObjectsOfType(t)</td><td>Find all objects of IL2CPP type</td></tr>
-<tr><td style="color:var(--mth);">go:GetComponent(n)</td><td>Get component as LuaClass</td></tr>
-<tr><td style="color:var(--mth);">go.Name / go.active</td><td>Name and active state</td></tr>
-<tr><td style="color:var(--mth);">wrap(addr)</td><td>Wrap pointer as LuaClass</td></tr>
-</table>
+            <h3 style="color:var(--type);margin:16px 0 8px;">API Reference</h3>
+            <div style="overflow-x:auto;">
+                <table class="table" style="width:100%;min-width:400px;">
+                <tr><th>Function</th><th>Description</th></tr>
+                <tr><td style="color:var(--mth);">Assembly(name)</td><td>Load assembly by name</td></tr>
+                <tr><td style="color:var(--mth);">asm:NameSpace(ns)</td><td>Get namespace from assembly</td></tr>
+                <tr><td style="color:var(--mth);">ns:Class(name, addr)</td><td>Get class. addr=0x0 for static</td></tr>
+                <tr><td style="color:var(--mth);">asm:Class(name, addr)</td><td>Get class directly</td></tr>
+                <tr><td style="color:var(--mth);">cls.fieldName</td><td>Read/Write field or property</td></tr>
+                <tr><td style="color:var(--mth);">cls.method(args...)</td><td>Call method</td></tr>
+                <tr><td style="color:var(--mth);">cls.addr</td><td>Get instance address</td></tr>
+                <tr><td style="color:var(--mth);">scene.GetObjects()</td><td>Get GameObjects as table</td></tr>
+                <tr><td style="color:var(--mth);">scene.FindObject(n)</td><td>Find GameObject by name</td></tr>
+                <tr><td style="color:var(--mth);">FindObjectsOfType(t)</td><td>Find all objects of IL2CPP type</td></tr>
+                <tr><td style="color:var(--mth);">go:GetComponent(n)</td><td>Get component as LuaClass</td></tr>
+                <tr><td style="color:var(--mth);">go.Name / go.active</td><td>Name and active state</td></tr>
+                <tr><td style="color:var(--mth);">wrap(addr)</td><td>Wrap pointer as LuaClass</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-</div>
-</div>
+
 </div>
 </div>
 <div class="add-comp-modal" id="addCompModal" onclick="closeAddComp(event)">
@@ -339,7 +396,7 @@ async function init(){let asms=await fetch('/api/assemblies').then(r=>r.json());
 async function toggleAsm(el,asm){let kids=el.nextElementSibling,arr=el.querySelector('.arr');if(kids.classList.contains('open')){kids.classList.remove('open');arr.classList.remove('open');return;}if(!kids.innerHTML.trim()){let classes=await fetch(`/api/classes?a=${encodeURIComponent(asm)}`).then(r=>r.json());let byNs={};for(let c of classes){let ns=c.ns||'';if(!byNs[ns])byNs[ns]=[];byNs[ns].push(c);}let h='';for(let ns of Object.keys(byNs).sort()){h+=`<ul class="tree-node"><div class="tree-nc" onclick="toggleNs(this)"><span class="arr">&#9654;</span><div class="ico" style="color:#daa520"><svg><use href="#ic-ns"/></svg></div><span>${esc(ns||'(global)')}</span></div><div class="kids">`;for(let c of byNs[ns].sort((a,b)=>a.name.localeCompare(b.name))){let badge=c.t!=='class'?`<span class="mono-tag">${c.t}</span>`:'';h+=`<div class="tree-nc" onclick="loadCls(this,'${esc(asm)}','${esc(c.ns||'')}','${esc(c.name)}')"><span class="arr"></span><div class="ico" style="color:var(--type)"><svg><use href="#ic-cls"/></svg></div><span>${esc(c.name)}</span>${badge}</div>`;}h+=`</div></ul>`;}kids.innerHTML=h;}kids.classList.add('open');arr.classList.add('open');}
 function toggleNs(el){el.nextElementSibling.classList.toggle('open');el.querySelector('.arr').classList.toggle('open');}
 function formatCode(d){let ns=d.ns||'',name=d.name||'',parent=d.parent||'',t=d.type||'class',ind=ns?'    ':'',lines=[];if(ns)lines.push(`<span class="c-kw">namespace</span> <span class="c-ty">${esc(ns)}</span> {`);let decl=`${ind}<span class="c-kw">public ${t}</span> <span class="c-ty">${esc(name)}</span>`;if(parent&&parent!=='Object'&&parent!=='ValueType')decl+=` : <span class="c-ty">${esc(parent)}</span>`;lines.push(decl+' {');for(let f of d.fields||[]){let isStatic=f.s?' <span class="c-kw">static</span>':'';lines.push(`${ind}    <span class="c-cm">// offset 0x${f.off?Number(f.off).toString(16):'?'}</span>`);lines.push(`${ind}    <span class="c-kw">public</span>${isStatic} <span class="c-ty">${esc(f.type)}</span> <span>${esc(f.name)}</span>;`);}for(let p of d.props||[]){let acc=(p.g?'get; ':'')+(p.s?'set; ':'');lines.push(`${ind}    <span class="c-kw">public</span> <span class="c-ty">${esc(p.type)}</span> <span class="c-mt">${esc(p.name)}</span> { ${acc}}`);}for(let m of d.methods||[]){let prms=(m.params||[]).map(p=>`<span class="c-ty">${esc(p.t)}</span> ${esc(p.n)}`).join(', ');let isStatic=m.s?' <span class="c-kw">static</span>':'';let addr=m.addr?`<span class="c-cm">// ${m.addr}</span>\n${ind}    `:'';lines.push(`${ind}    ${addr}<span class="c-kw">public</span>${isStatic} <span class="c-ty">${esc(m.ret)}</span> <span class="c-mt">${esc(m.name)}</span>(${prms}) {}`);}lines.push(ind+'}');if(ns)lines.push('}');return lines.join('\n');}
-async function loadCls(el,asm,ns,name){document.querySelectorAll('#tree-root .tree-nc').forEach(e=>e.classList.remove('active'));if(el)el.classList.add('active');curAsm=asm;curNs=ns;curCls=name;let d=await fetch(`/api/class?a=${encodeURIComponent(asm)}&ns=${encodeURIComponent(ns)}&n=${encodeURIComponent(name)}`).then(r=>r.json());document.getElementById('pnl-code').innerHTML=formatCode(d);switchTab('code');loadInstances();}
+async function loadCls(el,asm,ns,name){document.querySelectorAll('#tree-root .tree-nc').forEach(e=>e.classList.remove('active'));if(el)el.classList.add('active');curAsm=asm;curNs=ns;curCls=name;let d=await fetch(`/api/class?a=${encodeURIComponent(asm)}&ns=${encodeURIComponent(ns)}&n=${encodeURIComponent(name)}`).then(r=>r.json());document.getElementById('code-content').innerHTML=formatCode(d);switchTab('code');loadInstances();}
 async function loadInstances(){document.getElementById('inst-list').innerHTML='Loading...';let d=await fetch(`/api/instances?a=${encodeURIComponent(curAsm)}&ns=${encodeURIComponent(curNs)}&n=${encodeURIComponent(curCls)}`).then(r=>r.json());if(d.error){document.getElementById('inst-list').innerHTML=`<div style="color:#f66">${esc(d.error)}</div>`;return;}let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span>Instances: ${d.instances.length}</span><button class="btn" onclick="openStaticController()">Open Static</button></div><table class="table"><tr><th>Address</th><th>Name</th><th></th></tr>`;for(let i of d.instances)h+=`<tr><td><span class="addr-badge" onclick="copyTxt('0x${i.addr}')">0x${i.addr}</span></td><td><span class="c-st">"${esc(i.name)}"</span></td><td><button class="btn" onclick="openController('0x${i.addr}')">Open</button></td></tr>`;document.getElementById('inst-list').innerHTML=h+'</table>';}
 function openController(addr){document.getElementById('ctrl-addr').value=addr;document.getElementById('ctrl-asm').value=curAsm;document.getElementById('ctrl-ns').value=curNs;document.getElementById('ctrl-cls').value=curCls;document.getElementById('ctrl-static').checked=false;document.getElementById('ctrl-addr').disabled=false;switchTab('ctrl');loadController();}
 function openStaticController(){document.getElementById('ctrl-addr').value='0x0';document.getElementById('ctrl-asm').value=curAsm;document.getElementById('ctrl-ns').value=curNs;document.getElementById('ctrl-cls').value=curCls;document.getElementById('ctrl-static').checked=true;document.getElementById('ctrl-addr').disabled=true;switchTab('ctrl');loadController();}
