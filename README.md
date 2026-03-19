@@ -14,7 +14,19 @@
 
 <div align="center">
     <img src="Uc5uSAT.png" alt="demonstration" width="100%">
+    <br>
+    <table style="width:100%; border-collapse: collapse; border: none;">
+        <tr>
+            <td style="width:50%; border: none; padding: 5px;">
+                <img src="Screenshot_SaveLoadLua.jpg" alt="Save Load Lua" width="100%">
+            </td>
+            <td style="width:50%; border: none; padding: 5px;">
+                <img src="Screenshot_Mobile.jpg" alt="Mobile View" width="100%">
+            </td>
+        </tr>
+    </table>
 </div>
+
 
 ### Features
 * **Web-Based UI**: Accessible via any web browser on your PC or phone. No heavy desktop client required.
