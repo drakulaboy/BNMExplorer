@@ -6,8 +6,7 @@
 <div align="center">
     <img src="logo.png" width="15%" alt="logo">
     <h1 align="center">BNM Explorer</h1>
-    <p>A web-based runtime inspector and debugger for IL2CPP Unity games on Android/VR/Mobiles.</p>
-    <a href="https://github.com/SilentErased/BNMExplorer/releases/latest"><b>✦ Download latest release ✦</b></a>
+    <p>A web-based runtime inspector and debugger for IL2CPP Unity games on Android/VR/Mobiles.</p> 
 </div>
 
 <br>
